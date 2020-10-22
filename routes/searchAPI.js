@@ -19,22 +19,27 @@ router.get('/', async function(req, res, next) {
   let sqlSentence3 = `select label_id from ll_labels where label_name like '%${req.query.t}%'`
   let articleTags = await sqlSearch(sqlSentence3)
   let articleIds3
-  if (articleTags) {
+  // console.log(articleTags);
+  // console.log(req.query.t);
+  if (!articleTags[0]) {
     articleIds3 = []
   } else {
-    let sqlSentence4 = `select article_id from ll_set_article_label where label_id like '%${articleTags[0]['label_id']}%' order by article_id desc`
+    let sqlSentence4 = `select article_id from ll_set_article_label where label_id like '%-${articleTags[0]['label_id']}-%' order by article_id desc`
     articleIds3 = await sqlSearch(sqlSentence4)
   }
-  
+  // console.log(articleIds3);
   // 总的文章id和去重并从大到小排列
   articleIds.push(...articleIds3)
   let middleArr = []
   articleIds.forEach((item, index) => {
     middleArr.push(item['article_id'])
   })
+  
   let newArticlesId = [...new Set(middleArr)].sort((a, b) => {
     return b - a
   })
+  console.log(newArticlesId);
+  
   // 判断数据是否结束
   let articleNum = 8 * (req.query.p - 1)
   let finallArr
@@ -59,6 +64,7 @@ router.get('/', async function(req, res, next) {
     // 获得文章单个标签
     let cardTagNameStr = ''
     for(let value of cardTags[0]['label_id'].split('-')) {
+      if (!value) continue
       let sqlSentence8 = `select label_name from ll_labels where label_id = ${value}`
       let cardTagName = await sqlSearch(sqlSentence8)
       cardTagNameStr += cardTagName[0]['label_name'] + '-'

@@ -26,6 +26,7 @@ router.get('/', async function(req, res, next) {
     // 获得文章单个标签
     let cardTagNameStr = ''
     for(let value of cardTags[0]['label_id'].split('-')) {
+      if (!value) continue
       let sqlSentence5 = `select label_name from ll_labels where label_id = ${value}`
       let cardTagName = await sqlSearch(sqlSentence5)
       cardTagNameStr += cardTagName[0]['label_name'] + '-'
